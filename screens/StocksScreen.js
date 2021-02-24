@@ -10,6 +10,8 @@ import {
   TouchableWithoutFeedback,
   ScrollView,
 } from 'react-native';
+import Constants from 'expo-constants';
+// import { getMA } from '../helpers/helper';
 
 export default class StocksScreen extends React.Component {
   constructor() {
@@ -26,8 +28,11 @@ export default class StocksScreen extends React.Component {
       marketcap: '',
       industry: '',
       sector: '',
+      last_refresh: '',
+      maData: '',
     };
     this.getMetadata = this.getMetadata.bind(this);
+    this.getMA = this.getMA.bind(this);
   }
   // API calls to stock market data
   getMetadata = async () => {
@@ -48,7 +53,7 @@ export default class StocksScreen extends React.Component {
         this.setState({ sector: responseJson['Sector'] });
         // console.log('Alpha API call to ', this.stockURL);
         // console.log('Ticker in state is: ', this.state.currentTicker);
-        console.log('name: ', this.state.name);
+        // console.log('name: ', this.state.name);
         // console.log(this.state.metadata);
       })
       .catch((error) => {
@@ -56,17 +61,58 @@ export default class StocksScreen extends React.Component {
       });
   };
 
-  componentDidMount() {
+  async getMA() {
+    let stockSymbol = this.state.currentTicker;
+    // API URL
+    let MA_URL = `https://www.alphavantage.co/query?function=EMA&symbol=${stockSymbol}&interval=weekly&time_period=10&series_type=open&apikey=${process.env.REACT_APP_API_KEY}`;
+    fetch(MA_URL)
+      .then((response) => response.json())
+      .then((responseJson) => {
+        this.setState({ last_refresh: responseJson['3: Last Refreshed'] });
+        this.setState({ isLoading: false });
+        this.setState({ maData: responseJson['Technical Analysis: EMA'] });
+        console.log(responseJson['Technical Analysis: EMA']);
+        // console.log('Ticker in state is: ', this.state.currentTicker);
+        // console.log('name: ', this.state.name);
+        // console.log(this.state.metadata);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+
+  async getRSI() {
+    let stockSymbol = this.state.currentTicker;
+    // API URL
+    let MA_URL = `https://www.alphavantage.co/query?function=EMA&symbol=${stockSymbol}&interval=weekly&time_period=10&series_type=open&apikey=${process.env.REACT_APP_API_KEY}`;
+    fetch(MA_URL)
+      .then((response) => response.json())
+      .then((responseJson) => {
+        this.setState({ last_refresh: responseJson['3: Last Refreshed'] });
+        this.setState({ isLoading: false });
+        this.setState({ maData: responseJson['Technical Analysis: EMA'] });
+        console.log(responseJson['Technical Analysis: EMA']);
+        // console.log('Ticker in state is: ', this.state.currentTicker);
+        // console.log('name: ', this.state.name);
+        // console.log(this.state.metadata);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+
+  async componentDidMount() {
     this.setState({ isLoading: true });
     if (this.state.currentTicker) {
       this.getMetadata();
+      this.getMA();
       this.setState({ isLoading: false });
     }
   }
 
   renderItem = ({ item }) => (
     <TouchableWithoutFeedback onPress={() => this.onclickOnRow(item)}>
-      <View style={{ minHeight: 70, padding: 5 }}>
+      <View>
         <Text style={{ color: '#bada55', fontWeight: 'bold', fontSize: 26 }}>
           {item.name}
         </Text>
@@ -88,6 +134,7 @@ export default class StocksScreen extends React.Component {
     // console.log(this.state.searchText);
     // console.log('currentTicker in state: ', this.state.currentTicker);
     this.getMetadata();
+    this.getMA();
     this.setState({ isLoading: false });
   }
 
@@ -109,7 +156,7 @@ export default class StocksScreen extends React.Component {
     }
   };
   render() {
-    // console.log(this.state.searchText);
+    console.log('search text array', this.state.searchText);
     return (
       <ScrollView style={{ flex: 1 }}>
         <SafeAreaView style={{ backgroundColor: '#2f363c' }} />
@@ -161,12 +208,17 @@ export default class StocksScreen extends React.Component {
         </View>
         <ScrollView>
           <View style={styles.container}>
-            <Text>{this.state.name}</Text>
-            <Text>sector: {this.state.sector}</Text>
-            <Text>industry: {this.state.industry}</Text>
-            <Text>stock_symbol: {this.state.symbol}</Text>
-            <Text>Market Cap: {this.state.marketcap} </Text>
-            <Text style={{ padding: 10 }}>{this.state.description}</Text>
+            <Text styles={styles.text}>{this.state.name}</Text>
+            <Text styles={styles.text}>sector: {this.state.sector}</Text>
+            <Text styles={styles.text}>industry: {this.state.industry}</Text>
+            <Text styles={styles.text}>stock_symbol: {this.state.symbol}</Text>
+            <Text styles={styles.text}>
+              Market Cap: {this.state.marketcap}{' '}
+            </Text>
+            <Text styles={styles.text}>
+              'MA last check: '{this.state.last_refresh}
+            </Text>
+            <Text styles={styles.text}>{this.state.description}</Text>
           </View>
         </ScrollView>
       </ScrollView>
@@ -177,8 +229,22 @@ export default class StocksScreen extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    paddingTop: Constants.statusBarHeight,
+    backgroundColor: 'powderblue',
+    padding: 8,
+  },
+  text: {
+    // Text styles
+    fontFamily: 'Helvetica',
+    fontSize: 24,
+    lineHeight: 32,
+    fontWeight: '300',
+    textAlign: 'center',
+    color: 'white',
+    // View styles
+    backgroundColor: 'steelblue',
+    borderRadius: 12,
+    padding: 20,
+    width: 200,
   },
 });
