@@ -11,6 +11,7 @@ import {
   ScrollView,
 } from 'react-native';
 import Constants from 'expo-constants';
+import { Image } from 'react-native-elements';
 
 import {
   VictoryCandlestick,
@@ -20,6 +21,7 @@ import {
   VictoryLabel,
 } from 'victory-native';
 import { Card } from 'react-native-elements';
+import { result } from 'lodash';
 
 export default class StocksScreen extends React.Component {
   constructor() {
@@ -31,6 +33,11 @@ export default class StocksScreen extends React.Component {
       currentTicker: '',
       metadata: '',
       name: '',
+      companyicon: '',
+      companynamedomainlogo: '',
+      logo: undefined,
+      domain: '',
+      companyname_forlogo: '',
       description: '',
       symbol: '',
       marketcap: '',
@@ -46,6 +53,7 @@ export default class StocksScreen extends React.Component {
     this.getMetadata = this.getMetadata.bind(this);
     // this.getMA = this.getMA.bind(this);
     this.getOHLCData = this.getOHLCData.bind(this);
+    this.getLogo = this.getLogo.bind(this);
   }
 
   // API calls to stock market data
@@ -146,6 +154,7 @@ export default class StocksScreen extends React.Component {
       // this.getMA();
       this.getOHLCData();
       this.setState({ isLoading: false });
+      this.setState({ logo: String(this.state.companynamedomainlogo['logo']) });
     }
   }
 
@@ -173,11 +182,13 @@ export default class StocksScreen extends React.Component {
     this.getMetadata();
     this.getMA();
     this.getOHLCData();
+    this.getLogo(this.truncate(item.name));
     this.setState({ isLoading: true });
-    console.log('currentTicker in state: ', this.state.currentTicker);
-    console.log('Selected Item :', item);
-    console.log('name in state', this.state.name);
-    console.log(this.state.ordered_data);
+    // console.log('currentTicker in state: ', this.state.currentTicker);
+    // console.log('Selected Item :', item);
+    // console.log('name in state', this.state.name);
+    // console.log(this.state.ordered_data);
+    // console.log(this.state.companyicon);
   }
 
   searchStockTickers = async (value) => {
@@ -190,6 +201,7 @@ export default class StocksScreen extends React.Component {
           this.setState({ searchText: response });
           this.setState({ name: response['name'] });
           this.setState({ loading: false });
+          // console.log(truncate(response['name']));
         })
         .catch((error) => {
           console.log(error);
@@ -198,6 +210,56 @@ export default class StocksScreen extends React.Component {
       this.setState({ isSearch: false });
     }
   };
+
+  getLogo = async (companyname) => {
+    var myHeaders = new Headers();
+    myHeaders.append(
+      'Authorization',
+      'Basic c2tfNmRlNmU1NDMxN2M5NzkzZmFkYmRkMWUwM2Q2OGVkZTA6'
+    );
+
+    var requestOptions = {
+      method: 'GET',
+      headers: myHeaders,
+      redirect: 'follow',
+    };
+    url = `https://company.clearbit.com/v1/domains/find?name=${companyname}`;
+
+    fetch(url, requestOptions)
+      .then((response) => response.text())
+      .then((result) => {
+        this.setState({ companynamedomainlogo: result }),
+          this.setState({ logo: result.logo }),
+          this.setState({ domain: result['domain'] });
+      })
+      .catch((error) => console.log('error', error));
+    console.log(url);
+  };
+
+  truncate = (elem) => {
+    // Make sure an element and number of items to truncate is provided
+    if (!elem) return;
+
+    // Get the inner content of the element
+    var content = elem.trim();
+
+    // Convert the content into an array of words
+    // Remove any words above the limit
+    if (content.includes('Inc.')) {
+      // content = content.split(' ').slice(0, 2);
+      var shortened = content.replace('Inc.', '');
+      return shortened;
+    }
+    // if (this.wordCount(content) >= 2) {
+    //   content.substr();
+    // }
+  };
+
+  // wordCount = (fullcompanyname) => {
+  //   var lettercount = fullcompanyname.match(/[^\s]+/g);
+  //   return lettercount ? lettercount.length : 0;
+  // }
+
   reshapedata() {
     let data_list = this.state.data;
     let data_rearranged_h = [];
@@ -216,6 +278,9 @@ export default class StocksScreen extends React.Component {
   render() {
     // console.log(this.state.ordered_data);
     // console.log('search text array', this.state.searchText);
+    console.log('company ', this.state.companynamedomainlogo);
+    console.log('logo', this.state.logo);
+    console.log('domain', this.state.domain);
     return (
       <ScrollView style={{ flex: 1 }}>
         <SafeAreaView style={{ backgroundColor: '#2f363c' }} />
@@ -290,7 +355,7 @@ export default class StocksScreen extends React.Component {
               <VictoryAxis
                 tickValues={[5, 6, 7, 8, 9, 10, 11, 12]}
                 // tickFormat={(t) => `${t}`}
-                tickFormat={(t) => console.log(t)}
+                tickFormat={(t) => `t.slice(0, 2)`}
               />
               <VictoryAxis
                 dependentAxis
@@ -305,13 +370,24 @@ export default class StocksScreen extends React.Component {
               <View style={styles.container}>
                 <Card key={this.state.currentTicker}>
                   <View style={{ flex: 1, flexDirection: 'row' }}>
+                    <Image
+                      style={styles.tinyLogo}
+                      source={{
+                        uri: this.state.companynamedomainlogo.logo,
+                      }}
+                    />
+                    <Image
+                      source={{ uri: this.state.companynamedomainlogo['logo'] }}
+                      style={{ width: 200, height: 200 }}
+                      PlaceholderContent={<ActivityIndicator />}
+                    />
                     <Text h4 style={{ alignSelf: 'auto', padding: 5 }}>
-                      {this.state.symbol}{' '}
+                      {this.state.companynamedomainlogo['name']}{' '}
+                      {this.state.symbol} {' Market capitalization'}{' '}
                       {'$' +
                         parseInt(this.state.marketcap)
                           .toFixed(2)
                           .replace(/\d(?=(\d{3})+\.)/g, '$&,')}
-                      {' Market capitalization'}
                     </Text>
                   </View>
                 </Card>
@@ -357,5 +433,9 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 5,
     width: 200,
+  },
+  tinyLogo: {
+    width: 50,
+    height: 50,
   },
 });
