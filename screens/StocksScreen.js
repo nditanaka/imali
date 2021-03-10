@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   TouchableWithoutFeedback,
   ScrollView,
+  Dimensions,
 } from 'react-native';
 import Constants from 'expo-constants';
 import { Image } from 'react-native-elements';
@@ -226,7 +227,7 @@ export default class StocksScreen extends React.Component {
     url = `https://company.clearbit.com/v1/domains/find?name=${companyname}`;
 
     fetch(url, requestOptions)
-      .then((response) => response.text())
+      .then((response) => response.json())
       .then((result) => {
         this.setState({ companynamedomainlogo: result }),
           this.setState({ logo: result.logo }),
@@ -245,9 +246,10 @@ export default class StocksScreen extends React.Component {
 
     // Convert the content into an array of words
     // Remove any words above the limit
-    if (content.includes('Inc.')) {
+    if (content.includes('Inc.' || 'Inc')) {
       // content = content.split(' ').slice(0, 2);
       var shortened = content.replace('Inc.', '');
+      var shortened = content.replace('Inc', '');
       return shortened;
     }
     // if (this.wordCount(content) >= 2) {
@@ -276,6 +278,7 @@ export default class StocksScreen extends React.Component {
     return data_rearranged_h;
   }
   render() {
+    const SCREEN_WIDTH = Dimensions.get('window').width;
     // console.log(this.state.ordered_data);
     // console.log('search text array', this.state.searchText);
     console.log('company ', this.state.companynamedomainlogo);
@@ -371,19 +374,15 @@ export default class StocksScreen extends React.Component {
                 <Card key={this.state.currentTicker}>
                   <View style={{ flex: 1, flexDirection: 'row' }}>
                     <Image
-                      style={styles.tinyLogo}
+                      style={styles.logo}
                       source={{
-                        uri: this.state.companynamedomainlogo.logo,
+                        uri: this.state.companynamedomainlogo['logo'],
                       }}
-                    />
-                    <Image
-                      source={{ uri: this.state.companynamedomainlogo['logo'] }}
-                      style={{ width: 200, height: 200 }}
                       PlaceholderContent={<ActivityIndicator />}
                     />
                     <Text h4 style={{ alignSelf: 'auto', padding: 5 }}>
                       {this.state.companynamedomainlogo['name']}{' '}
-                      {this.state.symbol} {' Market capitalization'}{' '}
+                      {this.state.symbol} {' Market cap'}{' '}
                       {'$' +
                         parseInt(this.state.marketcap)
                           .toFixed(2)
@@ -394,10 +393,10 @@ export default class StocksScreen extends React.Component {
                 <Card>
                   <View style={{ flex: 1, flexDirection: 'row' }}>
                     <Text h4 style={{ alignSelf: 'auto', padding: 1 }}>
-                      {('Sector ', (this.state.sector, ' '))}
+                      {((this.state.sector, ' '))}
                     </Text>
                     <Text h4 style={{ alignSelf: 'auto', padding: 1 }}>
-                      {('Industry ', this.state.industry)}
+                      {(this.state.industry)}
                     </Text>
                   </View>
                   <View style={{ paddingTop: 5 }}>
@@ -437,5 +436,10 @@ const styles = StyleSheet.create({
   tinyLogo: {
     width: 50,
     height: 50,
+  },
+  logo: {
+    height: SCREEN_WIDTH * 0.65,
+    width: SCREEN_WIDTH * 0.65,
+    marginLeft: SCREEN_WIDTH * 0.2,
   },
 });
