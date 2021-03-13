@@ -10,6 +10,7 @@ import {
   TouchableWithoutFeedback,
   ScrollView,
   Dimensions,
+  ImageBackground,
 } from 'react-native';
 import Constants from 'expo-constants';
 import { Image } from 'react-native-elements';
@@ -22,7 +23,8 @@ import {
   VictoryLabel,
 } from 'victory-native';
 import { Card } from 'react-native-elements';
-import { result } from 'lodash';
+import StocksHomepage from '../components/StocksHomepage';
+// import { result } from 'lodash';
 
 export default class StocksScreen extends React.Component {
   constructor() {
@@ -37,6 +39,7 @@ export default class StocksScreen extends React.Component {
       companyicon: '',
       companynamedomainlogo: '',
       logo: undefined,
+      displayCharts: false,
       domain: '',
       companyname_forlogo: '',
       description: '',
@@ -55,6 +58,8 @@ export default class StocksScreen extends React.Component {
     // this.getMA = this.getMA.bind(this);
     this.getOHLCData = this.getOHLCData.bind(this);
     this.getLogo = this.getLogo.bind(this);
+    // this.getCurrentprice = this.getCurrentprice.bind(this);
+    this.refreshstocks = this.refreshstocks.bind(this);
   }
 
   // API calls to stock market data
@@ -73,7 +78,6 @@ export default class StocksScreen extends React.Component {
         this.setState({ marketcap: responseJson['MarketCapitalization'] });
         this.setState({ industry: responseJson['Industry'] });
         this.setState({ sector: responseJson['Sector'] });
-        this.setState({ displayCards: true });
       })
       .catch((error) => {
         console.log(error);
@@ -154,8 +158,14 @@ export default class StocksScreen extends React.Component {
       this.getMetadata();
       // this.getMA();
       this.getOHLCData();
+      this.refreshstocks();
       this.setState({ isLoading: false });
       this.setState({ logo: String(this.state.companynamedomainlogo['logo']) });
+    }
+  }
+  refreshstocks() {
+    if (ordered_data) {
+      setState({ displayCharts: true });
     }
   }
 
@@ -185,6 +195,7 @@ export default class StocksScreen extends React.Component {
     this.getOHLCData();
     this.getLogo(this.truncate(item.name));
     this.setState({ isLoading: true });
+    // this.getCurrentprice();
     // console.log('currentTicker in state: ', this.state.currentTicker);
     // console.log('Selected Item :', item);
     // console.log('name in state', this.state.name);
@@ -277,13 +288,17 @@ export default class StocksScreen extends React.Component {
     }
     return data_rearranged_h;
   }
+  // async getCurrentprice() {
+  //   const price = await yahooStockPrices.getCurrentPrice('AAPL');
+  //   console.log('price: ', price);
+  // }
   render() {
-    const SCREEN_WIDTH = Dimensions.get('window').width;
     // console.log(this.state.ordered_data);
     // console.log('search text array', this.state.searchText);
-    console.log('company ', this.state.companynamedomainlogo);
-    console.log('logo', this.state.logo);
-    console.log('domain', this.state.domain);
+    // console.log('company ', this.state.companynamedomainlogo);
+    // console.log('logo', this.state.logo);
+    // console.log('domain', this.state.domain);
+    console.log('domain:', this.state.domain);
     return (
       <ScrollView style={{ flex: 1 }}>
         <SafeAreaView style={{ backgroundColor: '#2f363c' }} />
@@ -313,106 +328,114 @@ export default class StocksScreen extends React.Component {
               <ActivityIndicator size='small' color='#8086FB' />
             </View>
           ) : null}
-          <FlatList
-            data={this.state.searchText}
-            renderItem={this.renderItem}
-            keyExtractor={(item, index) => index.toString()}
-            ListEmptyComponent={() => (
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginTop: 10,
-                }}
-              >
-                {this.state.isSearch ? (
-                  <View
-                    style={{
-                      ...StyleSheet.absoluteFill,
-                      alignItems: 'center',
-                      justifyContent: 'top',
-                    }}
-                  >
-                    <Text style={{ color: '#6c7ce4' }}>
-                      Enter ticker or company name
-                    </Text>
-                  </View>
-                ) : (
-                  <Text>{this.state.isSearch}</Text>
-                )}
-              </View>
-            )}
-          />
+          <SafeAreaView style={{ flex: 1 }}>
+            <FlatList
+              data={this.state.searchText}
+              renderItem={this.renderItem}
+              keyExtractor={(item, index) => index.toString()}
+              ListEmptyComponent={() => (
+                <View
+                  style={{
+                    flex: 1,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginTop: 10,
+                  }}
+                >
+                  {this.state.isSearch ? (
+                    <View
+                      style={{
+                        ...StyleSheet.absoluteFill,
+                        alignItems: 'center',
+                        justifyContent: 'top',
+                      }}
+                    >
+                      <Text style={{ color: '#6c7ce4' }}>
+                        Enter ticker or company name
+                      </Text>
+                    </View>
+                  ) : (
+                    <Text>{this.state.isSearch}</Text>
+                  )}
+                </View>
+              )}
+            />
+          </SafeAreaView>
         </View>
         <ScrollView>
-          <View style={styles.container}>
-            <Text h3 style={{ alignSelf: 'center', padding: 5 }}>
-              {this.state.name}
-            </Text>
-            <VictoryChart
-              theme={VictoryTheme.material}
-              domainPadding={{ x: 25 }}
-              scale={{ x: 'time' }}
-            >
-              <VictoryAxis
-                tickValues={[5, 6, 7, 8, 9, 10, 11, 12]}
-                // tickFormat={(t) => `${t}`}
-                tickFormat={(t) => `t.slice(0, 2)`}
-              />
-              <VictoryAxis
-                dependentAxis
-                axisLabelComponent={<VictoryLabel dx={20} />}
-              />
-              <VictoryCandlestick
-                candleColors={{ positive: '#336d16', negative: '#ff0000' }}
-                data={this.state.ordered_data}
-              />
-            </VictoryChart>
-            {this.state.displayCards == true ? (
-              <View style={styles.container}>
-                <Card key={this.state.currentTicker}>
-                  <View style={{ flex: 1, flexDirection: 'row' }}>
-                    <Image
-                      style={styles.logo}
-                      source={{
-                        uri: this.state.companynamedomainlogo['logo'],
-                      }}
-                      PlaceholderContent={<ActivityIndicator />}
-                    />
-                    <Text h4 style={{ alignSelf: 'auto', padding: 5 }}>
-                      {this.state.companynamedomainlogo['name']}{' '}
-                      {this.state.symbol} {' Market cap'}{' '}
-                      {'$' +
-                        parseInt(this.state.marketcap)
-                          .toFixed(2)
-                          .replace(/\d(?=(\d{3})+\.)/g, '$&,')}
-                    </Text>
-                  </View>
-                </Card>
-                <Card>
-                  <View style={{ flex: 1, flexDirection: 'row' }}>
-                    <Text h4 style={{ alignSelf: 'auto', padding: 1 }}>
-                      {((this.state.sector, ' '))}
-                    </Text>
-                    <Text h4 style={{ alignSelf: 'auto', padding: 1 }}>
-                      {(this.state.industry)}
-                    </Text>
-                  </View>
-                  <View style={{ paddingTop: 5 }}>
-                    <Text style={{ fontSize: 16 }}>
-                      {this.state.description}
-                    </Text>
-                  </View>
-                </Card>
-              </View>
-            ) : null}
-          </View>
+          {this.state.displayCharts == true ? (
+            <View style={styles.container}>
+              <Text h3 style={{ alignSelf: 'center', padding: 5 }}>
+                {this.state.name}
+              </Text>
+              <VictoryChart
+                theme={VictoryTheme.material}
+                domainPadding={{ x: 25 }}
+                scale={{ x: 'time' }}
+              >
+                <VictoryAxis
+                  tickValues={[5, 6, 7, 8, 9, 10, 11, 12]}
+                  // tickFormat={(t) => `${t}`}
+                  tickFormat={(t) => `t.slice(0, 2)`}
+                />
+                <VictoryAxis
+                  dependentAxis
+                  axisLabelComponent={<VictoryLabel dx={20} />}
+                />
+                <VictoryCandlestick
+                  candleColors={{ positive: '#336d16', negative: '#ff0000' }}
+                  data={this.state.ordered_data}
+                />
+              </VictoryChart>
+              {this.state.displayCards == true ? (
+                <View style={styles.container}>
+                  <Card key={this.state.currentTicker}>
+                    <View style={{ flex: 1, flexDirection: 'row' }}>
+                      <Image
+                        style={styles.logo}
+                        source={{
+                          uri: this.state.companynamedomainlogo['logo'],
+                        }}
+                        PlaceholderContent={<ActivityIndicator />}
+                      />
+                      <Text h4 style={{ alignSelf: 'auto', padding: 5 }}>
+                        {this.state.companynamedomainlogo['name']}{' '}
+                        {this.state.symbol} {' Market cap'}{' '}
+                        {'$' +
+                          parseInt(this.state.marketcap)
+                            .toFixed(2)
+                            .replace(/\d(?=(\d{3})+\.)/g, '$&,')}
+                      </Text>
+                    </View>
+                  </Card>
+                  <Card>
+                    <View style={{ flex: 1, flexDirection: 'row' }}>
+                      <Text h4 style={{ alignSelf: 'auto', padding: 1 }}>
+                        {(this.state.sector, ' ')} {(this.state.domain, ' ')}{' '}
+                      </Text>
+                      <Text h4 style={{ alignSelf: 'auto', padding: 1 }}>
+                        {this.state.industry}
+                      </Text>
+                    </View>
+                    <View style={{ paddingTop: 5 }}>
+                      <Text style={{ fontSize: 16 }}>
+                        {this.state.description}
+                      </Text>
+                    </View>
+                  </Card>
+                </View>
+              ) : null}
+            </View>
+          ) : (
+            <StocksHomepage style={styles.background} />
+          )}
         </ScrollView>
       </ScrollView>
     );
   }
 }
+
+const SCREEN_WIDTH = Dimensions.get('window').width;
 
 const styles = StyleSheet.create({
   container: {
@@ -420,6 +443,11 @@ const styles = StyleSheet.create({
     paddingTop: Constants.statusBarHeight,
     backgroundColor: 'powderblue',
     padding: 8,
+  },
+  background: {
+    width: '100%',
+    height: '100%',
+    flex: 1,
   },
   text: {
     fontFamily: 'Helvetica',
@@ -438,8 +466,8 @@ const styles = StyleSheet.create({
     height: 50,
   },
   logo: {
-    height: SCREEN_WIDTH * 0.65,
-    width: SCREEN_WIDTH * 0.65,
-    marginLeft: SCREEN_WIDTH * 0.2,
+    height: SCREEN_WIDTH * 0.15,
+    width: SCREEN_WIDTH * 0.15,
+    marginLeft: SCREEN_WIDTH * 0.05,
   },
 });

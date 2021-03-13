@@ -3744,7 +3744,7 @@
     "path-browserify" "^1.0.0"
     "url-parse" "^1.4.4"
 
-"expo-constants@^9.3.5", "expo-constants@~9.3.3":
+"expo-constants@~9.3.3":
   "integrity" "sha512-qIlv2ffSjQl3wrvJwXYoNfQNfH/sK46EXcgyEQnQ1SAQO4ukwTEpG9j3fdW6aTiVEVrv/DsA1IaVRqKrUwSd3A=="
   "resolved" "https://registry.npmjs.org/expo-constants/-/expo-constants-9.3.5.tgz"
   "version" "9.3.5"
@@ -7061,10 +7061,10 @@
   dependencies:
     "dotenv" "^8.0.0"
 
-"react-native-elements@^3.2.0":
-  "integrity" "sha512-DgilI1P/S8xV3Uh6sjS7v1H7DsBXhlivG1IwHGJCO3OV3aFNh90bcdcmlKzxLZXWghQItqh9hQR3TLmgaZbU1w=="
-  "resolved" "https://registry.npmjs.org/react-native-elements/-/react-native-elements-3.2.0.tgz"
-  "version" "3.2.0"
+"react-native-elements@^3.3.1":
+  "integrity" "sha512-vK6GVliIQMbwNpNxRRyqFTb5ErrSN7+a2VxBUN5cqSu9B8rWG862M/lv9oWplkFOlPkL/a2xkzruoWSoN8HNhw=="
+  "resolved" "https://registry.npmjs.org/react-native-elements/-/react-native-elements-3.3.1.tgz"
+  "version" "3.3.1"
   dependencies:
     "@types/react-native-vector-icons" "^6.4.6"
     "color" "^3.1.2"
@@ -7072,7 +7072,6 @@
     "hoist-non-react-statics" "^3.3.2"
     "lodash.isequal" "^4.5.0"
     "opencollective-postinstall" "^2.0.3"
-    "prop-types" "^15.7.2"
     "react-native-ratings" "^7.3.0"
     "react-native-size-matters" "^0.3.1"
 
@@ -7377,7 +7376,7 @@
     "stealthy-require" "^1.1.1"
     "tough-cookie" "^2.3.3"
 
-"request@^2.34", "request@^2.88.0":
+"request@^2.34", "request@^2.81.0", "request@^2.88.0":
   "integrity" "sha512-MsvtOrfG9ZcrOwAW+Qi+F6HbD0CWXEh9ou77uOb7FM2WPhwT7smM833PzanhJLsgXjN89Ir6V2PczXNnMpwKhw=="
   "resolved" "https://registry.npmjs.org/request/-/request-2.88.2.tgz"
   "version" "2.88.2"
@@ -9232,6 +9231,13 @@
   "integrity" "sha512-hsRUr4FFrvhhRH12wOdfs38Gy7k2FFzB9qgN9v3aLykRq0dRcdcpz5C9FxdS2NuhOrI/628b/KSTJ3rwHysYSg=="
   "resolved" "https://registry.npmjs.org/y18n/-/y18n-5.0.5.tgz"
   "version" "5.0.5"
+
+"yahoo-stock-prices@^1.1.0":
+  "integrity" "sha512-A+s0/kTchqwixk9mE+o+8hqRW6zxFeGGb2WcS6j06ET76xxokQo9E0LGZ9v9prom8Ya4vdYkYrtUiMD4dFH0Fg=="
+  "resolved" "https://registry.npmjs.org/yahoo-stock-prices/-/yahoo-stock-prices-1.1.0.tgz"
+  "version" "1.1.0"
+  dependencies:
+    "request" "^2.81.0"
 
 "yallist@^2.1.2":
   "integrity" "sha1-HBH5IY8HYImkfdUS+TxmmaaoHVI="

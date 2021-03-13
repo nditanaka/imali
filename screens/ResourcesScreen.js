@@ -2,30 +2,19 @@
 import { StyleSheet } from 'react-native';
 // import SearchBar from 'react-native-dynamic-search-bar';
 import { Text, View } from '../components/Themed';
-import React, { Component } from "react";
+import React, { Component } from 'react';
 import {
   // View,
   // Text,
   FlatList,
   ActivityIndicator,
-  SafeAreaView
-} from "react-native";
+  SafeAreaView,
+} from 'react-native';
 // import { List, ListItem, SearchBar } from "react-native-elements";
+import ResourcesHomepage from '../components/ResourcesHomepage';
 
 export default function ResourcesScreen() {
-  
-  return (
-    <View style={styles.container}>
-      {/* <SearchBar
-          style={styles.search}
-          placeholder="Search here"
-          onPress={() => alert('onPress function called')}
-          onChangeText={(text) => console.log(text)}
-        /> */}
-      <Text style={styles.title}>Resources</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-    </View>
-  );
+  return <ResourcesHomepage />;
 }
 
 const styles = StyleSheet.create({
@@ -53,5 +42,5 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginTop: 10,
     padding: 5,
-  }
+  },
 });
