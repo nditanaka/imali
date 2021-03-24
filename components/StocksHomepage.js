@@ -14,7 +14,7 @@ const StocksHomepage = () => {
           style={styles.logo}
           resizeMode='contain'
         />
-        <Text style={styles.text}>Travel with people. Make new friends.</Text>
+        <Text style={styles.text}>Find new stocks.</Text>
       </View>
       {/* </ImageBackground> */}
     </View>
@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
     marginBottom: '10%',
   },
   text: {
-    color: 'blue',
+    color: '#a18cd1',
     marginTop: '-10%',
     marginLeft: '20%',
   },

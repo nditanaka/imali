@@ -11,9 +11,11 @@ import {
   ScrollView,
   Dimensions,
   ImageBackground,
+  Pressable,
 } from 'react-native';
 import Constants from 'expo-constants';
 import { Image } from 'react-native-elements';
+// import yahooFinance from 'yahoo-finance2';
 
 import {
   VictoryCandlestick,
@@ -24,7 +26,6 @@ import {
 } from 'victory-native';
 import { Card } from 'react-native-elements';
 import StocksHomepage from '../components/StocksHomepage';
-// import { result } from 'lodash';
 
 export default class StocksScreen extends React.Component {
   constructor() {
@@ -55,11 +56,13 @@ export default class StocksScreen extends React.Component {
       displayCards: false,
     };
     this.getMetadata = this.getMetadata.bind(this);
-    // this.getMA = this.getMA.bind(this);
     this.getOHLCData = this.getOHLCData.bind(this);
     this.getLogo = this.getLogo.bind(this);
-    // this.getCurrentprice = this.getCurrentprice.bind(this);
     this.refreshstocks = this.refreshstocks.bind(this);
+    this.getMA = this.getMA.bind(this);
+    this.pad = this.pad.bind(this);
+    // this.getCurrentprice = this.getCurrentprice.bind(this);
+    // this.getQuote = this.getQuote(this);
   }
 
   // API calls to stock market data
@@ -114,19 +117,37 @@ export default class StocksScreen extends React.Component {
     // }
   };
 
+  pad(n) {
+    return n < 10 ? '0' + n : n;
+  }
+
   async getMA() {
     let stockSymbol = this.state.currentTicker;
     // API URL
     let MA_URL = `https://www.alphavantage.co/query?function=EMA&symbol=${stockSymbol}&interval=weekly&time_period=10&series_type=open&apikey=${process.env.REACT_APP_API_KEY}`;
+    let today = new Date();
+    let yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    let currentdate =
+      yesterday.getFullYear() +
+      '-' +
+      this.pad(yesterday.getMonth() + 1) +
+      '-' +
+      this.pad(yesterday.getDate());
+
     fetch(MA_URL)
       .then((response) => response.json())
       .then((responseJson) => {
         this.setState({ last_refresh: responseJson['3: Last Refreshed'] });
         this.setState({ isLoading: false });
         this.setState({ maData: responseJson['Technical Analysis: EMA'] });
-        // console.log(responseJson['Technical Analysis: EMA']);
+        console.log(
+          responseJson['Technical Analysis: EMA'][currentdate]['EMA']
+        );
         // console.log('Ticker in state is: ', this.state.currentTicker);
         // console.log('name: ', this.state.name);
+        // console.log('maData', this.state.maData);
+        console.log(currentdate);
         // console.log(this.state.metadata);
       })
       .catch((error) => {
@@ -134,17 +155,26 @@ export default class StocksScreen extends React.Component {
       });
   }
 
+  // async getQuote() {
+  //   let stockSymbol = this.state.currentTicker;
+  //   const results = await yahooFinance.search(stockSymbol);
+  //   console.log(results);
+  //   this.setState({ quoteData: results });
+  // }
+
   async getRSI() {
     let stockSymbol = this.state.currentTicker;
     // API URL
     let MA_URL = `https://www.alphavantage.co/query?function=EMA&symbol=${stockSymbol}&interval=weekly&time_period=10&series_type=open&apikey=${process.env.REACT_APP_API_KEY}`;
-    fetch(MA_URL)
+    let RSI_URL = `https://www.alphavantage.co/query?function=RSI&symbol=${stockSymbol}&interval=weekly&time_period=10&series_type=open&apikey=${process.env.REACT_APP_API_KEY}`;
+    fetch(RSI_URL)
       .then((response) => response.json())
       .then((responseJson) => {
         this.setState({ last_refresh: responseJson['3: Last Refreshed'] });
         this.setState({ isLoading: false });
         this.setState({ maData: responseJson['Technical Analysis: EMA'] });
         // console.log('Ticker in state is: ', this.state.currentTicker);
+        // console.log(responseJson);
         // console.log('name: ', this.state.name);
         // console.log(this.state.metadata);
       })
@@ -156,7 +186,7 @@ export default class StocksScreen extends React.Component {
   async componentDidMount() {
     if (this.state.currentTicker) {
       this.getMetadata();
-      // this.getMA();
+      this.getMA();
       this.getOHLCData();
       this.refreshstocks();
       this.setState({ isLoading: false });
@@ -170,7 +200,7 @@ export default class StocksScreen extends React.Component {
   }
 
   renderItem = ({ item }) => (
-    <TouchableWithoutFeedback onPress={() => this.onclickOnRow(item)}>
+    <Pressable onPress={() => this.onclickOnRow(item)}>
       <View>
         <Text style={{ color: '#6c7ce4', fontWeight: 'bold', fontSize: 26 }}>
           {item.name}
@@ -179,7 +209,7 @@ export default class StocksScreen extends React.Component {
           Ticker: {item.symbol}
         </Text>
       </View>
-    </TouchableWithoutFeedback>
+    </Pressable>
   );
   onclickOnRow(item) {
     const indexOfitem = this.state.searchText.indexOf(item);
@@ -194,6 +224,7 @@ export default class StocksScreen extends React.Component {
     this.getMA();
     this.getOHLCData();
     this.getLogo(this.truncate(item.name));
+    // this.getQuote();
     this.setState({ isLoading: true });
     // this.getCurrentprice();
     // console.log('currentTicker in state: ', this.state.currentTicker);
@@ -212,6 +243,7 @@ export default class StocksScreen extends React.Component {
         .then((response) => {
           this.setState({ searchText: response });
           this.setState({ name: response['name'] });
+          this.setState({ displayCharts: true });
           this.setState({ loading: false });
           // console.log(truncate(response['name']));
         })
@@ -220,6 +252,7 @@ export default class StocksScreen extends React.Component {
         });
     } else {
       this.setState({ isSearch: false });
+      this.setState({ displayCards: false });
     }
   };
 
@@ -292,13 +325,16 @@ export default class StocksScreen extends React.Component {
   //   const price = await yahooStockPrices.getCurrentPrice('AAPL');
   //   console.log('price: ', price);
   // }
+  // results = await yahooFinance.search('AAPL');
+
   render() {
     // console.log(this.state.ordered_data);
     // console.log('search text array', this.state.searchText);
     // console.log('company ', this.state.companynamedomainlogo);
     // console.log('logo', this.state.logo);
     // console.log('domain', this.state.domain);
-    console.log('domain:', this.state.domain);
+    // console.log('domain:', this.state.domain);
+    // console.log(this.results);
     return (
       <ScrollView style={{ flex: 1 }}>
         <SafeAreaView style={{ backgroundColor: '#2f363c' }} />
@@ -374,9 +410,12 @@ export default class StocksScreen extends React.Component {
                 scale={{ x: 'time' }}
               >
                 <VictoryAxis
-                  tickValues={[5, 6, 7, 8, 9, 10, 11, 12]}
+                  // tickValues={[5, 6, 7, 8, 9, 10, 11, 12]}
+                  // domain={{x: [0, 100]}}
+                  scale='time'
                   // tickFormat={(t) => `${t}`}
-                  tickFormat={(t) => `t.slice(0, 2)`}
+                  // tickFormat={(t) => `${t.slice(0, 2)}`}
+                  tickFormat={(t) => new Date(t).getFullYear()}
                 />
                 <VictoryAxis
                   dependentAxis
@@ -387,6 +426,43 @@ export default class StocksScreen extends React.Component {
                   data={this.state.ordered_data}
                 />
               </VictoryChart>
+              <View style={styles.container}>
+                <Card key={this.state.currentTicker}>
+                  <View style={{ flex: 1, flexDirection: 'row' }}>
+                    <Image
+                      style={styles.logo}
+                      source={{
+                        uri: this.state.companynamedomainlogo['logo'],
+                      }}
+                      PlaceholderContent={<ActivityIndicator />}
+                    />
+                    <Text h4 style={{ alignSelf: 'auto', padding: 5 }}>
+                      {this.results}
+                      {this.state.companynamedomainlogo['name']}{' '}
+                      {this.state.symbol} {' Market cap'}{' '}
+                      {'$' +
+                        parseInt(this.state.marketcap)
+                          .toFixed(2)
+                          .replace(/\d(?=(\d{3})+\.)/g, '$&,')}
+                    </Text>
+                  </View>
+                </Card>
+                <Card>
+                  <View style={{ flex: 1, flexDirection: 'row' }}>
+                    <Text h4 style={{ alignSelf: 'auto', padding: 1 }}>
+                      {(this.state.sector, ' ')} {(this.state.domain, ' ')}{' '}
+                    </Text>
+                    <Text h4 style={{ alignSelf: 'auto', padding: 1 }}>
+                      {this.state.industry}
+                    </Text>
+                  </View>
+                  <View style={{ paddingTop: 5 }}>
+                    <Text style={{ fontSize: 16 }}>
+                      {this.state.description}
+                    </Text>
+                  </View>
+                </Card>
+              </View>
               {this.state.displayCards == true ? (
                 <View style={styles.container}>
                   <Card key={this.state.currentTicker}>

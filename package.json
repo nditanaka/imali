@@ -45,6 +45,7 @@
     "stocks.js": "^0.0.19",
     "tslib": "^2.1.0",
     "victory-native": "^35.3.1",
+    "yahoo-finance": "^0.3.7",
     "yahoo-stock-prices": "^1.1.0"
   },
   "devDependencies": {

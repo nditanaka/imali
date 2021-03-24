@@ -27,7 +27,6 @@ const styles = StyleSheet.create({
   background: {
     width: 400,
     height: 600,
-    // background-image: linear-gradient(to top, #a18cd1 0%, #fbc2eb 100%);
   },
   logo: {
     width: 280,
@@ -37,7 +36,7 @@ const styles = StyleSheet.create({
     marginBottom: '10%',
   },
   text: {
-    color: 'blue',
+    color: '#a18cd1',
     marginTop: '-10%',
     marginLeft: '20%',
   },

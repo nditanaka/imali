@@ -1,16 +1,7 @@
-// import * as React from 'react';
 import { StyleSheet } from 'react-native';
-// import SearchBar from 'react-native-dynamic-search-bar';
 import { Text, View } from '../components/Themed';
 import React, { Component } from 'react';
-import {
-  // View,
-  // Text,
-  FlatList,
-  ActivityIndicator,
-  SafeAreaView,
-} from 'react-native';
-// import { List, ListItem, SearchBar } from "react-native-elements";
+import { FlatList, ActivityIndicator, SafeAreaView } from 'react-native';
 import ResourcesHomepage from '../components/ResourcesHomepage';
 
 export default function ResourcesScreen() {
