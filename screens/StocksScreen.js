@@ -105,7 +105,7 @@ export default class StocksScreen extends React.Component {
       )
       .then((response) =>
         this.setState({
-          ordered_data: this.reshapedata(),
+          ordered_data: this.reshapedata().reverse(),
         })
       )
       .catch((err) => {
@@ -335,6 +335,7 @@ export default class StocksScreen extends React.Component {
     // console.log('domain', this.state.domain);
     // console.log('domain:', this.state.domain);
     // console.log(this.results);
+    console.log(this.state.ordered_data);
     return (
       <ScrollView style={{ flex: 1 }}>
         <SafeAreaView style={{ backgroundColor: '#2f363c' }} />
@@ -413,9 +414,11 @@ export default class StocksScreen extends React.Component {
                   // tickValues={[5, 6, 7, 8, 9, 10, 11, 12]}
                   // domain={{x: [0, 100]}}
                   scale='time'
-                  // tickFormat={(t) => `${t}`}
+                  tickFormat={(t) => `${t}`}
                   // tickFormat={(t) => `${t.slice(0, 2)}`}
-                  tickFormat={(t) => new Date(t).getFullYear()}
+                  // tickFormat={(t) => new Date(t).getUTCDate()}
+                  fixLabelOverlap
+                  style={{ tickLabels: { padding: 16, fontSize: 8 } }}
                 />
                 <VictoryAxis
                   dependentAxis
@@ -424,6 +427,7 @@ export default class StocksScreen extends React.Component {
                 <VictoryCandlestick
                   candleColors={{ positive: '#336d16', negative: '#ff0000' }}
                   data={this.state.ordered_data}
+                  // x='x'
                 />
               </VictoryChart>
               <View style={styles.container}>
